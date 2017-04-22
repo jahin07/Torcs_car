@@ -7,6 +7,8 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.optimizers import Adam
 import tensorflow as tf
+
+
 from keras.engine.training import collect_trainable_weights
 import json
 
@@ -18,12 +20,33 @@ import timeit
 
 OU = OU()       #Ornstein-Uhlenbeck Process
 
-def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
+def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
     BUFFER_SIZE = 100000
     BATCH_SIZE = 32
     GAMMA = 0.99
     TAU = 0.001     #Target Network HyperParameters
-    LRA = 0.0001    #Learning rate for Actor
+    LRA = 0.0001
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #Learning rate for Actor
     LRC = 0.001     #Lerning rate for Critic
 
     action_dim = 3  #Steering/Acceleration/Brake
@@ -34,7 +57,7 @@ def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
     vision = False
 
     EXPLORE = 100000.
-    episode_count = 2000
+    episode_count = 200000   #2000
     max_steps = 100000
     reward = 0
     done = False
@@ -95,10 +118,14 @@ def playGame(train_indicator=0):    #1 means Train, 0 means simply Run
             #if random.random() <= 0.1:
             #    print("********Now we apply the brake***********")
             #    noise_t[0][2] = train_indicator * max(epsilon, 0) * OU.function(a_t_original[0][2],  0.2 , 1.00, 0.10)
-
+	    # if train_indicator ==1 :
             a_t[0][0] = a_t_original[0][0] + noise_t[0][0]
             a_t[0][1] = a_t_original[0][1] + noise_t[0][1]
             a_t[0][2] = a_t_original[0][2] + noise_t[0][2]
+        # else:
+        #     a_t[0][0] = a_t_original[0][0]
+        #     a_t[0][1] = a_t_original[0][1]
+        #     a_t[0][2] = a_t_original[0][2]
 
             ob, r_t, done, info = env.step(a_t[0])
 

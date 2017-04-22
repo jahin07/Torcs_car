@@ -8,7 +8,16 @@ from keras.layers import Dense, Flatten, Input, merge, Lambda
 from keras.optimizers import Adam
 import tensorflow as tf
 import keras.backend as K
+from keras import layers
+from keras import models
+from keras import backend as K
+from keras.utils.test_utils import layer_test
+from keras.utils.test_utils import keras_test
+from keras.layers import merge
 
+
+i_avg = 0
+flag = 0
 HIDDEN1_UNITS = 300
 HIDDEN2_UNITS = 600
 
@@ -44,11 +53,35 @@ class ActorNetwork(object):
         self.target_model.set_weights(actor_target_weights)
 
     def create_actor_network(self, state_size,action_dim):
+        global tmp
+        #  tmp1, tmp2,i_avg,flag
         print("Now we build the model")
         S = Input(shape=[state_size])   
         h0 = Dense(HIDDEN1_UNITS, activation='relu')(S)
         h1 = Dense(HIDDEN2_UNITS, activation='relu')(h0)
-        Steering = Dense(1,activation='tanh',init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1)  
+        Steering = Dense(1,activation='tanh',init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1)
+        # tmp = Steering
+        # Steering =(Steering+tmp)/2
+        # if flag == 0:
+        #     tmp1 = Steering
+        #     tmp1 -= tmp1
+        #     flag = 1
+        #     tmp2 = Steering
+        #
+        #  tmp = layers.add([tmp1,Steering])
+        # model = models.Model([tmp1,Steering],tmp)
+        #
+        # Steering = tmp /2
+        # # i_avg += 1
+        # # if i_avg == 2:
+        # #     Steering = tf.mod(tmp1,2)
+        # #     tmp2 = Steering
+        # #     tmp1 = tf.sub(tmp1,tmp1)
+        # #     i_avg = 0
+        # #     flag = 1
+        # # else:
+        # #     Steering = tmp2
+
         Acceleration = Dense(1,activation='sigmoid',init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1)   
         Brake = Dense(1,activation='sigmoid',init=lambda shape, name: normal(shape, scale=1e-4, name=name))(h1) 
         V = merge([Steering,Acceleration,Brake],mode='concat')          

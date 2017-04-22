@@ -6,9 +6,13 @@ import snakeoil3_gym as snakeoil3
 import numpy as np
 import copy
 import collections as col
-import os
-import time
 
+
+import os
+
+
+import time
+tmp = 0
 
 class TorcsEnv:
     terminal_judge_start = 100  # If after 100 timestep still no progress, terminated
@@ -60,6 +64,7 @@ class TorcsEnv:
             self.observation_space = spaces.Box(low=low, high=high)
 
     def step(self, u):
+        global tmp,i_avg,tmp1,flag
        #print("Step")
         # convert thisAction to the actual torcs actionstr
         client = self.client
@@ -70,7 +75,33 @@ class TorcsEnv:
         action_torcs = client.R.d
 
         # Steering
-        action_torcs['steer'] = this_action['steer']  # in [-1, 1]
+        # action_torcs['steer'] = this_action['steer']
+
+        action_torcs['steer'] = (tmp + this_action['steer']) / 2
+
+        if np.abs(action_torcs['steer']) < 0.25:
+            action_torcs['steer'] = 0
+
+        # if np.abs(this_action['steer']) >= 0.4:
+        #     action_torcs['steer'] = this_action['steer']
+        tmp = action_torcs['steer']
+        print(action_torcs['steer'])
+        # if flag==0:
+        #     tmp1 = this_action['steer']
+        #     action_torcs['steer'] = this_action['steer']
+        #     tmp =tmp1
+        #     flag = 1
+        #     # print("1111111")
+        # i_avg += 1
+        # tmp += this_action['steer']  # in [-1, 1]
+        # if i_avg == 2:
+        #     action_torcs['steer'] = tmp / 2
+        #     tmp1 = action_torcs['steer']
+        #     tmp = 0
+        #     i_avg = 0
+        #     # print("2222222")
+        # else:
+        #     action_torcs['steer'] =tmp1
 
         #  Simple Autnmatic Throttle Control by Snakeoil
         if self.throttle is False:
@@ -133,8 +164,8 @@ class TorcsEnv:
         sp = np.array(obs['speedX'])
         damage = np.array(obs['damage'])
         rpm = np.array(obs['rpm'])
-
-        progress = sp*np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])
+        #reward function
+        progress = sp*np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])+sp/3/(np.sin(np.abs(action_torcs['steer'])*0.366519)+1) 
         reward = progress
 
         # collision detection
@@ -143,16 +174,16 @@ class TorcsEnv:
 
         # Termination judgement #########################
         episode_terminate = False
-        #if (abs(track.any()) > 1 or abs(trackPos) > 1):  # Episode is terminated if the car is out of track
-        #    reward = -200
-        #    episode_terminate = True
-        #    client.R.d['meta'] = True
+        # if (abs(track.any()) > 1 or abs(trackPos) > 1):  # Episode is terminated if the car is out of track
+        #     reward = -200
+        #     episode_terminate = True
+        #     client.R.d['meta'] = True
 
-        #if self.terminal_judge_start < self.time_step: # Episode terminates if the progress of agent is small
-        #    if progress < self.termination_limit_progress:
-        #        print("No progress")
-        #        episode_terminate = True
-        #        client.R.d['meta'] = True
+        if self.terminal_judge_start < self.time_step: # Episode terminates if the progress of agent is small
+            if progress < self.termination_limit_progress:
+                print("No progress")
+                episode_terminate = True
+                client.R.d['meta'] = True
 
         if np.cos(obs['angle']) < 0: # Episode is terminated if the agent runs backward
             episode_terminate = True
