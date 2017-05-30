@@ -13,8 +13,6 @@ from keras import models
 from keras import backend as K
 from keras.utils.test_utils import layer_test
 from keras.utils.test_utils import keras_test
-from keras.layers import merge
-
 
 i_avg = 0
 flag = 0
