@@ -26,26 +26,6 @@ def playGame(train_indicator=1):    #1 means Train, 0 means simply Run
     GAMMA = 0.99
     TAU = 0.001     #Target Network HyperParameters
     LRA = 0.0001
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     #Learning rate for Actor
     LRC = 0.001     #Lerning rate for Critic
 
