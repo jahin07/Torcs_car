@@ -165,7 +165,7 @@ class TorcsEnv:
         damage = np.array(obs['damage'])
         rpm = np.array(obs['rpm'])
         #reward function
-        progress = sp*np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])+sp/3/(np.sin(np.abs(action_torcs['steer'])*0.366519)+1) 
+        progress = sp*np.cos(obs['angle']) - np.abs(sp*np.sin(obs['angle'])) - sp * np.abs(obs['trackPos'])+sp/3/(np.sin(np.abs(action_torcs['steer'])*0.366519)+1)
         reward = progress
 
         # collision detection
@@ -300,15 +300,16 @@ class TorcsEnv:
                      'trackPos',
                      'wheelSpinVel',
                      'img']
-            Observation = col.namedtuple('Observaion', names)
+            Observation = col.namedtuple('Observation', names)
 
             # Get RGB from observation
-            image_rgb = self.obs_vision_to_image_rgb(raw_obs[names[8]])
+            image_rgb = self.obs_vision_to_image_rgb(raw_obs[names[10]])  # Changed 8 to 10 for img
 
             return Observation(focus=np.array(raw_obs['focus'], dtype=np.float32)/200.,
                                speedX=np.array(raw_obs['speedX'], dtype=np.float32)/self.default_speed,
                                speedY=np.array(raw_obs['speedY'], dtype=np.float32)/self.default_speed,
                                speedZ=np.array(raw_obs['speedZ'], dtype=np.float32)/self.default_speed,
+                               angle=np.array(raw_obs['angle'], dtype=np.float32) / 3.1416,
                                opponents=np.array(raw_obs['opponents'], dtype=np.float32)/200.,
                                rpm=np.array(raw_obs['rpm'], dtype=np.float32),
                                track=np.array(raw_obs['track'], dtype=np.float32)/200.,
