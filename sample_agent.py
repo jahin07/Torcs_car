@@ -34,3 +34,5 @@ class Agent(object):
             plt.pause(0.001)
             """
         return np.tanh(np.random.randn(self.dim_action)) # random action
+
+    
